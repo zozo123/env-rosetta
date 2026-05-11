@@ -1,0 +1,18 @@
+{
+  "framework": "nemo_gym",
+  "name": "NeMo Gym",
+  "vendor": "NVIDIA",
+  "sandbox": "rosetta-nemo-gym",
+  "port": 11000,
+  "share_url": null,
+  "docs_url": null,
+  "color": "#76b900",
+  "status": "provisioning",
+  "code_excerpt_path": "envs/wordle_env/nemo_gym/server.py",
+  "code_excerpt": "\"\"\"\nWordle NeMo Gym Resources Server.\n\nExposes 2 tool endpoints:\n  POST /guess        \u2014 submit a 5-letter word guess\n  POST /get_history  \u2014 view all previous guesses and feedback\n\nPlus the standard NeMo Gym endpoints:\n  POST /seed_session   \u2014 initialize game per session\n  POST /verify         \u2014 compute reward after episode\n\nUsage:\n    python server.py\n\nWith NeMo Gym CLI:\n    ng_run \"+config_paths=[configs/wordle.yaml]\"\n\nDocker (from wordle/ directory):\n    docker build -f nemo_gym/Dockerfile -t wordle-nemo-gym .\n    docker run -p 11000:11000 wordle-nemo-gym\n\"\"\"\n\nimport os\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict\n\nfrom fastapi import FastAPI, Request\nfrom pydantic import BaseModel, Field\n\nfrom nemo_gym.base_resources_server import (\n    BaseResourcesServerConfig,\n    BaseVerifyRequest,\n    BaseVerifyResponse,\n    BaseSeedSessionRequest,\n    BaseSeedSessionResponse,\n    SimpleResourcesServer,\n)\nfrom nemo_gym.server_utils import SESSION_ID_KEY\n\n# Add parent to path for game import\n_parent = str(Path(__file__).resolve().parents[1])\nif _parent not in sys.path:\n    sys.path.insert(0, _parent)\n\nfrom game import WordleGame, TASKS\n\n\n# ---------------------------------------------------------------------------\n# Config\n# ---------------------------------------------------------------------------\n\nclass WordleConfig(BaseResourcesServerConfig):\n    \"\"\"Configuration for the Wordle NeMo Gym Resources Server.\"\"\"\n    pass\n\n\n# ---------------------------------------------------------------------------\n# Request / Response models\n# ---------------------------------------------------------------------------\n",
+  "rollout": {
+    "transcript": "$ rollout against nemo_gym\n>  guess('crane')  → 🟨⬛⬛🟨⬛  (5 guesses remaining)\n>  guess('share')  → ⬛🟨🟩⬛🟩  (4 guesses remaining)\n>  guess('alert')  → 🟨⬛🟨⬛🟨  (3 guesses remaining)\n>  guess('paint')  → 🟩🟩🟩🟩🟩  (WIN — 'paint')",
+    "won": true,
+    "guesses_used": 4
+  }
+}

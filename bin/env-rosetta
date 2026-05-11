@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# env-rosetta — orchestrator dispatcher
+# Subcommands: provision | rollout | page | demo
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$HERE"
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+  provision) exec python3 bin/provision.py "$@" ;;
+  rollout)   exec python3 bin/rollout.py "$@" ;;
+  page)      exec python3 bin/build_cards.py "$@" ;;
+  demo)      exec python3 bin/demo.py "$@" ;;
+  help|-h|--help|"")
+    cat <<EOF
+env-rosetta — same Wordle env, 4 RL frameworks, 4 islo sandboxes.
+
+Subcommands:
+  provision     spawn 4 islo sandboxes, install per-framework deps, start servers, share ports.
+                  Writes share URLs to cards/<framework>.json.
+  rollout       run one LLM rollout against each framework's running server (uses ANTHROPIC_API_KEY).
+                  Writes transcripts to cards/<framework>.json.
+  page          rebuild env-rosetta-page/cards.json from cards/*.json.
+  demo          offline deterministic walkthrough using vendored sample transcripts (~3s, no network).
+EOF
+    ;;
+  *) echo "unknown: $cmd" >&2; exit 2 ;;
+esac

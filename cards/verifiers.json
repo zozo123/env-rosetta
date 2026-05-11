@@ -1,0 +1,18 @@
+{
+  "framework": "verifiers",
+  "name": "Verifiers",
+  "vendor": "@willccbb",
+  "sandbox": null,
+  "port": null,
+  "share_url": null,
+  "docs_url": null,
+  "color": "#8338ec",
+  "status": "in-process",
+  "code_excerpt_path": "envs/wordle_env/verifiers/env.py",
+  "code_excerpt": "\"\"\"\nWordle Verifiers Toolkit.\n\nExposes 2 tools for TRL's InProcessEnvironment adapter:\n  - guess(word: str) \u2192 str   \u2014 submit a 5-letter guess\n  - get_history() \u2192 str      \u2014 view all previous guesses and feedback\n\nThe adapter discovers these automatically via inspect.getmembers().\nNo changes to any adapter code needed.\n\"\"\"\n\nimport sys\nfrom pathlib import Path\n\n# Add parent to path so we can import game.py\n_parent = str(Path(__file__).resolve().parents[1])\nif _parent not in sys.path:\n    sys.path.insert(0, _parent)\n\nfrom game import WordleGame, TASKS\n\n\nclass WordleToolkit:\n    \"\"\"Stateful Wordle toolkit. One game per episode.\"\"\"\n\n    def __init__(self, **kwargs):\n        self._game = None\n        self._answer = \"\"\n        self.last_output = \"\"\n        self.step_count = 0\n        self.error_count = 0\n\n    def reset(self):\n        \"\"\"Reset for new episode.\"\"\"\n        self._game = None\n        self.last_output = \"\"\n        self.step_count = 0\n        self.error_count = 0\n\n    def cleanup(self):\n        \"\"\"Nothing to clean up (pure Python, no external resources).\"\"\"\n        pass\n\n    def _ensure_game(self):\n        if self._game is None:\n            self._game = WordleGame(answer=self._answer)\n\n    def guess(self, word: str) -> str:\n        \"\"\"Submit a 5-letter word guess to the Wordle game.\n\n        The game will respond with colored feedback:\n        \ud83d\udfe9 = correct letter in correct position\n        \ud83d\udfe8 = correct letter in wrong position\n        \u2b1b = letter not in the word\n\n        Args:\n            word: A 5-letter English word guess.\n        \"\"\"\n        self._ensure_game()\n        self.step_count += 1\n",
+  "rollout": {
+    "transcript": "$ rollout against verifiers (in-process)\n>  guess('crane')  → 🟨⬛⬛🟨⬛  (5 guesses remaining)\n>  guess('share')  → ⬛🟨🟩⬛🟩  (4 guesses remaining)\n>  guess('alert')  → 🟨⬛🟨⬛🟨  (3 guesses remaining)\n>  guess('paint')  → 🟩🟩🟩🟩🟩  (WIN — 'paint')",
+    "won": true,
+    "guesses_used": 4
+  }
+}

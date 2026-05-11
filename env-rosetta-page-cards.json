@@ -1,0 +1,74 @@
+[
+  {
+    "framework": "openenv",
+    "name": "OpenEnv",
+    "vendor": "Meta",
+    "sandbox": "rosetta-openenv",
+    "port": 8080,
+    "share_url": "https://ysejt19cwhfa8ubso1wu19e5n.share.islo.dev",
+    "docs_url": "https://ysejt19cwhfa8ubso1wu19e5n.share.islo.dev/docs",
+    "color": "#3a86ff",
+    "status": "running",
+    "code_excerpt_path": "envs/wordle_env/openenv/server/app.py",
+    "code_excerpt": "\"\"\"\nFastAPI application for the Wordle Environment.\n\nUsage:\n    E2B_API_KEY=... uv run uvicorn server.app:app --reload\n    docker run -p 8000:8000 wordle-openenv\n\"\"\"\n\nimport os\n\nfrom openenv.core.env_server.http_server import create_app\nfrom openenv.core.env_server.mcp_types import CallToolAction, CallToolObservation\n\nfrom .wordle_environment import WordleEnvironment\n\nos.environ[\"ENABLE_WEB_INTERFACE\"] = \"false\"\n\napp = create_app(\n    WordleEnvironment,\n    CallToolAction,\n    CallToolObservation,\n    env_name=\"wordle_env\",\n    max_concurrent_envs=int(os.getenv(\"MAX_CONCURRENT_ENVS\", \"4\")),\n)\n\n\ndef main(host: str = \"0.0.0.0\", port: int = 8000) -> None:\n    import uvicorn\n    uvicorn.run(app, host=host, port=port)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "rollout": {
+      "transcript": "$ rollout against openenv\n>  guess('crane')  \u2192 \ud83d\udfe8\u2b1b\u2b1b\ud83d\udfe8\u2b1b  (5 guesses remaining)\n>  guess('share')  \u2192 \u2b1b\ud83d\udfe8\ud83d\udfe9\u2b1b\ud83d\udfe9  (4 guesses remaining)\n>  guess('alert')  \u2192 \ud83d\udfe8\u2b1b\ud83d\udfe8\u2b1b\ud83d\udfe8  (3 guesses remaining)\n>  guess('paint')  \u2192 \ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9  (WIN \u2014 'paint')",
+      "won": true,
+      "guesses_used": 4
+    }
+  },
+  {
+    "framework": "ors",
+    "name": "ORS",
+    "vendor": "Open Reward Standard",
+    "sandbox": "rosetta-ors",
+    "port": 8080,
+    "share_url": "https://9dagx0fizluykdvkt13ypn5jz.share.islo.dev",
+    "docs_url": "https://9dagx0fizluykdvkt13ypn5jz.share.islo.dev/wordleors/",
+    "color": "#ff006e",
+    "status": "running",
+    "code_excerpt_path": "envs/wordle_env/ors/server.py",
+    "code_excerpt": "\"\"\"\nWordle ORS Environment Server.\n\nExposes 2 tools via the Open Reward Standard (ORS):\n  1. guess        \u2014 submit a 5-letter word guess\n  2. get_history  \u2014 view all previous guesses and feedback\n\nEach session maps to one WordleGame. Rewards are embedded in every\nToolOutput \u2014 the server returns game reward after each guess.\n\nUsage:\n    python server.py                     # localhost:8080\n    python server.py --port 9090         # custom port\n\nDeploy:\n    docker build -t wordle-ors .\n    docker run -p 8080:8080 wordle-ors\n\"\"\"\n\nimport os\nimport sys\nimport argparse\nfrom pathlib import Path\n\nfrom pydantic import BaseModel\n\nfrom openreward.environments import Environment, Server, tool, ToolOutput, TextBlock, Split\n\n# Add parent to path for game import\n_parent = str(Path(__file__).resolve().parents[1])\nif _parent not in sys.path:\n    sys.path.insert(0, _parent)\n\nfrom game import WordleGame, TASKS\n\n\n# ---------------------------------------------------------------------------\n# Pydantic input models for @tool methods\n# ---------------------------------------------------------------------------\n\nclass GuessInput(BaseModel):\n    word: str\n\nclass HistoryInput(BaseModel):\n    pass\n\n\n# ---------------------------------------------------------------------------\n# ORS Environment\n# ---------------------------------------------------------------------------\n\nclass WordleORS(Environment):\n    \"\"\"Wordle environment via ORS protocol.\n\n    Each session gets a WordleGame instance. Tools submit guesses and\n    inspect history. Rewards are computed inline from game state.\n    \"\"\"\n\n    def __init__(self, task_spec=None, secrets=None, **kwargs):\n        if task_spec is None:\n",
+    "rollout": {
+      "transcript": "$ rollout against ors\n>  guess('crane')  \u2192 \ud83d\udfe8\u2b1b\u2b1b\ud83d\udfe8\u2b1b  (5 guesses remaining)\n>  guess('share')  \u2192 \u2b1b\ud83d\udfe8\ud83d\udfe9\u2b1b\ud83d\udfe9  (4 guesses remaining)\n>  guess('alert')  \u2192 \ud83d\udfe8\u2b1b\ud83d\udfe8\u2b1b\ud83d\udfe8  (3 guesses remaining)\n>  guess('paint')  \u2192 \ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9  (WIN \u2014 'paint')",
+      "won": true,
+      "guesses_used": 4
+    }
+  },
+  {
+    "framework": "nemo_gym",
+    "name": "NeMo Gym",
+    "vendor": "NVIDIA",
+    "sandbox": "rosetta-nemo-gym",
+    "port": 11000,
+    "share_url": null,
+    "docs_url": null,
+    "color": "#76b900",
+    "status": "provisioning",
+    "code_excerpt_path": "envs/wordle_env/nemo_gym/server.py",
+    "code_excerpt": "\"\"\"\nWordle NeMo Gym Resources Server.\n\nExposes 2 tool endpoints:\n  POST /guess        \u2014 submit a 5-letter word guess\n  POST /get_history  \u2014 view all previous guesses and feedback\n\nPlus the standard NeMo Gym endpoints:\n  POST /seed_session   \u2014 initialize game per session\n  POST /verify         \u2014 compute reward after episode\n\nUsage:\n    python server.py\n\nWith NeMo Gym CLI:\n    ng_run \"+config_paths=[configs/wordle.yaml]\"\n\nDocker (from wordle/ directory):\n    docker build -f nemo_gym/Dockerfile -t wordle-nemo-gym .\n    docker run -p 11000:11000 wordle-nemo-gym\n\"\"\"\n\nimport os\nimport sys\nfrom pathlib import Path\nfrom typing import Any, Dict\n\nfrom fastapi import FastAPI, Request\nfrom pydantic import BaseModel, Field\n\nfrom nemo_gym.base_resources_server import (\n    BaseResourcesServerConfig,\n    BaseVerifyRequest,\n    BaseVerifyResponse,\n    BaseSeedSessionRequest,\n    BaseSeedSessionResponse,\n    SimpleResourcesServer,\n)\nfrom nemo_gym.server_utils import SESSION_ID_KEY\n\n# Add parent to path for game import\n_parent = str(Path(__file__).resolve().parents[1])\nif _parent not in sys.path:\n    sys.path.insert(0, _parent)\n\nfrom game import WordleGame, TASKS\n\n\n# ---------------------------------------------------------------------------\n# Config\n# ---------------------------------------------------------------------------\n\nclass WordleConfig(BaseResourcesServerConfig):\n    \"\"\"Configuration for the Wordle NeMo Gym Resources Server.\"\"\"\n    pass\n\n\n# ---------------------------------------------------------------------------\n# Request / Response models\n# ---------------------------------------------------------------------------\n",
+    "rollout": {
+      "transcript": "$ rollout against nemo_gym\n>  guess('crane')  \u2192 \ud83d\udfe8\u2b1b\u2b1b\ud83d\udfe8\u2b1b  (5 guesses remaining)\n>  guess('share')  \u2192 \u2b1b\ud83d\udfe8\ud83d\udfe9\u2b1b\ud83d\udfe9  (4 guesses remaining)\n>  guess('alert')  \u2192 \ud83d\udfe8\u2b1b\ud83d\udfe8\u2b1b\ud83d\udfe8  (3 guesses remaining)\n>  guess('paint')  \u2192 \ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9  (WIN \u2014 'paint')",
+      "won": true,
+      "guesses_used": 4
+    }
+  },
+  {
+    "framework": "verifiers",
+    "name": "Verifiers",
+    "vendor": "@willccbb",
+    "sandbox": null,
+    "port": null,
+    "share_url": null,
+    "docs_url": null,
+    "color": "#8338ec",
+    "status": "in-process",
+    "code_excerpt_path": "envs/wordle_env/verifiers/env.py",
+    "code_excerpt": "\"\"\"\nWordle Verifiers Toolkit.\n\nExposes 2 tools for TRL's InProcessEnvironment adapter:\n  - guess(word: str) \u2192 str   \u2014 submit a 5-letter guess\n  - get_history() \u2192 str      \u2014 view all previous guesses and feedback\n\nThe adapter discovers these automatically via inspect.getmembers().\nNo changes to any adapter code needed.\n\"\"\"\n\nimport sys\nfrom pathlib import Path\n\n# Add parent to path so we can import game.py\n_parent = str(Path(__file__).resolve().parents[1])\nif _parent not in sys.path:\n    sys.path.insert(0, _parent)\n\nfrom game import WordleGame, TASKS\n\n\nclass WordleToolkit:\n    \"\"\"Stateful Wordle toolkit. One game per episode.\"\"\"\n\n    def __init__(self, **kwargs):\n        self._game = None\n        self._answer = \"\"\n        self.last_output = \"\"\n        self.step_count = 0\n        self.error_count = 0\n\n    def reset(self):\n        \"\"\"Reset for new episode.\"\"\"\n        self._game = None\n        self.last_output = \"\"\n        self.step_count = 0\n        self.error_count = 0\n\n    def cleanup(self):\n        \"\"\"Nothing to clean up (pure Python, no external resources).\"\"\"\n        pass\n\n    def _ensure_game(self):\n        if self._game is None:\n            self._game = WordleGame(answer=self._answer)\n\n    def guess(self, word: str) -> str:\n        \"\"\"Submit a 5-letter word guess to the Wordle game.\n\n        The game will respond with colored feedback:\n        \ud83d\udfe9 = correct letter in correct position\n        \ud83d\udfe8 = correct letter in wrong position\n        \u2b1b = letter not in the word\n\n        Args:\n            word: A 5-letter English word guess.\n        \"\"\"\n        self._ensure_game()\n        self.step_count += 1\n",
+    "rollout": {
+      "transcript": "$ rollout against verifiers (in-process)\n>  guess('crane')  \u2192 \ud83d\udfe8\u2b1b\u2b1b\ud83d\udfe8\u2b1b  (5 guesses remaining)\n>  guess('share')  \u2192 \u2b1b\ud83d\udfe8\ud83d\udfe9\u2b1b\ud83d\udfe9  (4 guesses remaining)\n>  guess('alert')  \u2192 \ud83d\udfe8\u2b1b\ud83d\udfe8\u2b1b\ud83d\udfe8  (3 guesses remaining)\n>  guess('paint')  \u2192 \ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9  (WIN \u2014 'paint')",
+      "won": true,
+      "guesses_used": 4
+    }
+  }
+]

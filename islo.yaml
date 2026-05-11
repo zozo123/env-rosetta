@@ -1,0 +1,17 @@
+sandbox: rosetta
+cpus: 2
+memory_mb: 2048
+disk_gb: 6
+
+sources:
+  - url: https://github.com/adithya-s-k/RL_Envs_101
+    branch: main
+
+env:
+  WORDLE_PORT: "8080"
+  NEMO_GYM_PORT: "11000"
+
+setup_script: |
+  set -e
+  command -v uv >/dev/null || (curl -LsSf https://astral.sh/uv/install.sh | sh)
+  echo "[setup] uv ready"

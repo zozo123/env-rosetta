@@ -1,0 +1,18 @@
+{
+  "framework": "ors",
+  "name": "ORS",
+  "vendor": "Open Reward Standard",
+  "sandbox": "rosetta-ors",
+  "port": 8080,
+  "share_url": "https://9dagx0fizluykdvkt13ypn5jz.share.islo.dev",
+  "docs_url": "https://9dagx0fizluykdvkt13ypn5jz.share.islo.dev/wordleors/",
+  "color": "#ff006e",
+  "status": "running",
+  "code_excerpt_path": "envs/wordle_env/ors/server.py",
+  "code_excerpt": "\"\"\"\nWordle ORS Environment Server.\n\nExposes 2 tools via the Open Reward Standard (ORS):\n  1. guess        \u2014 submit a 5-letter word guess\n  2. get_history  \u2014 view all previous guesses and feedback\n\nEach session maps to one WordleGame. Rewards are embedded in every\nToolOutput \u2014 the server returns game reward after each guess.\n\nUsage:\n    python server.py                     # localhost:8080\n    python server.py --port 9090         # custom port\n\nDeploy:\n    docker build -t wordle-ors .\n    docker run -p 8080:8080 wordle-ors\n\"\"\"\n\nimport os\nimport sys\nimport argparse\nfrom pathlib import Path\n\nfrom pydantic import BaseModel\n\nfrom openreward.environments import Environment, Server, tool, ToolOutput, TextBlock, Split\n\n# Add parent to path for game import\n_parent = str(Path(__file__).resolve().parents[1])\nif _parent not in sys.path:\n    sys.path.insert(0, _parent)\n\nfrom game import WordleGame, TASKS\n\n\n# ---------------------------------------------------------------------------\n# Pydantic input models for @tool methods\n# ---------------------------------------------------------------------------\n\nclass GuessInput(BaseModel):\n    word: str\n\nclass HistoryInput(BaseModel):\n    pass\n\n\n# ---------------------------------------------------------------------------\n# ORS Environment\n# ---------------------------------------------------------------------------\n\nclass WordleORS(Environment):\n    \"\"\"Wordle environment via ORS protocol.\n\n    Each session gets a WordleGame instance. Tools submit guesses and\n    inspect history. Rewards are computed inline from game state.\n    \"\"\"\n\n    def __init__(self, task_spec=None, secrets=None, **kwargs):\n        if task_spec is None:\n",
+  "rollout": {
+    "transcript": "$ rollout against ors\n>  guess('crane')  → 🟨⬛⬛🟨⬛  (5 guesses remaining)\n>  guess('share')  → ⬛🟨🟩⬛🟩  (4 guesses remaining)\n>  guess('alert')  → 🟨⬛🟨⬛🟨  (3 guesses remaining)\n>  guess('paint')  → 🟩🟩🟩🟩🟩  (WIN — 'paint')",
+    "won": true,
+    "guesses_used": 4
+  }
+}
