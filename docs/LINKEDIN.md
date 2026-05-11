@@ -5,6 +5,7 @@ Just shipped **env-rosetta**: @adithya-s-k's RL_Envs_101 Wordle env, deployed ac
 
 Page: https://zozo123.github.io/env-rosetta-page/
 Repo: https://github.com/zozo123/env-rosetta
+Reel: https://zozo123.github.io/env-rosetta-page/assets/env-rosetta.mp4 (upload directly to LinkedIn)
 
 ## Backup (1 sentence)
 env-rosetta: same Wordle env across 4 RL frameworks, each in its own islo.dev sandbox — the per-sandbox version of @adithya-s-k's Rosetta-stone for RL env design. https://zozo123.github.io/env-rosetta-page/

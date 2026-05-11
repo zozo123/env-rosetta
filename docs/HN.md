@@ -29,6 +29,7 @@ islo share rosetta-openenv 8080
 
 Live page: https://zozo123.github.io/env-rosetta-page/
 Repo: https://github.com/zozo123/env-rosetta
+1080×1080 launch reel: https://zozo123.github.io/env-rosetta-page/assets/env-rosetta.mp4
 
 Sibling demo from this session: [unity-loop](https://github.com/zozo123/unity-loop) — Claude-vision tournament over Unity WebGL variants on parallel islo sandboxes.
 
