@@ -19,7 +19,7 @@ Adithya's RL_Envs_101 reimplements the same environments across six RL framework
 
 **Status:** this was a single run on 2026-05-11. The sandboxes were temporary (24-hour share links) and have been shut down. OpenEnv and ORS ran; NeMo Gym did not finish provisioning; Verifiers runs in-process. The files in [`cards/`](./cards) record that run's sandbox names and status: their `share_url` values no longer resolve, and their `rollout` transcripts are scripted examples, not LLM rollouts.
 
-Each server exposes the same game tools (`guess(word)`, `get_history()`) in its own framework's idiom. The code excerpt links are pinned to upstream commit `41c0463`, which the excerpts in `cards/` match. Upstream has since moved the Wordle env to `00-environments-101/envs/wordle/`, so `bin/provision.py` would need its paths updated before it could run again.
+Each framework exposes the same two game tools (`guess(word)`, `get_history()`) in its own idiom. The code excerpt links are pinned to upstream commit `41c0463`, which the excerpts in `cards/` match. Upstream has since moved the Wordle env to `00-environments-101/envs/wordle/`, so `bin/provision.py` would need its paths updated before it could run again.
 
 ## Why one sandbox per server
 

@@ -29,8 +29,8 @@ Tier 2 would port the Jupyter env from E2B to Islo; it is not built. The Wordle 
 
 ## Honest framing
 
-- The four framework cards on the page link to the **same Wordle game logic**, exposed through each framework's idioms. The judging step in Adithya's repo is "did the LLM solve the puzzle." No LLM rollouts were run for this demo. Each card shows the same **scripted example transcript** (not an LLM rollout), written by `bin/rollout.py`.
-- One of the sandboxes (NeMo Gym) hit a transient `islo` exec-stream error during initial provisioning and never reached `running`. OpenEnv and ORS ran; their 24-hour share links have expired.
+- The four framework cards on the page link to the **same Wordle game logic**, exposed through each framework's idioms. The judging step in Adithya's repo is "did the LLM solve the puzzle." This repo has no code that calls an LLM; each card shows the same **scripted example transcript** (not an LLM rollout), written by `bin/rollout.py`.
+- One of the sandboxes (NeMo Gym) hit a transient `islo` exec-stream error during initial provisioning; its card still records `provisioning`. OpenEnv and ORS ran; their 24-hour share links have expired.
 - Verifiers doesn't have a server in this env — it's an in-process Python module. No share URL, no sandbox. The card shows code + transcript only.
 
 ## Credits
