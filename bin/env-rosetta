@@ -15,15 +15,15 @@ case "$cmd" in
   demo)      exec python3 bin/demo.py "$@" ;;
   help|-h|--help|"")
     cat <<EOF
-env-rosetta — same Wordle env, 4 RL frameworks, 4 islo sandboxes.
+env-rosetta — same Wordle env, 4 RL frameworks, islo.dev sandboxes (May 2026 demo).
 
 Subcommands:
-  provision     spawn 4 islo sandboxes, install per-framework deps, start servers, share ports.
+  provision     spawn 3 islo sandboxes (Verifiers runs in-process), install deps, start servers, share ports.
                   Writes share URLs to cards/<framework>.json.
-  rollout       run one LLM rollout against each framework's running server (uses ANTHROPIC_API_KEY).
-                  Writes transcripts to cards/<framework>.json.
+  rollout       write a scripted example transcript (not an LLM rollout) into cards/<framework>.json.
+                  No model call, no network.
   page          rebuild env-rosetta-page/cards.json from cards/*.json.
-  demo          offline deterministic walkthrough using vendored sample transcripts (~3s, no network).
+  demo          offline walkthrough: placeholder cards plus the scripted example transcript (no network).
 EOF
     ;;
   *) echo "unknown: $cmd" >&2; exit 2 ;;

@@ -1,36 +1,40 @@
-# env-rosetta — the per-sandbox Rosetta stone for RL envs
+# env-rosetta: one Wordle env, four RL frameworks, islo.dev sandboxes
 
-**TL;DR.** Four parallel [islo.dev](https://islo.dev) sandboxes, each running a different RL framework's port of [@adithya-s-k](https://github.com/adithya-s-k)'s Wordle env from [RL_Envs_101](https://github.com/adithya-s-k/RL_Envs_101). Same env logic, four dialects: OpenEnv (Meta), ORS, NeMo Gym (NVIDIA), Verifiers (in-process). HF Spaces is the reference deployment target in Adithya's repo; this is the islo-cold-per-trial-sandbox alternative.
+*Yossi Eliaz · May 2026 · demo*
 
-## Why the swap matters
+**TL;DR.** [@adithya-s-k](https://github.com/adithya-s-k)'s [RL_Envs_101](https://github.com/adithya-s-k/FineEnvs) (since renamed FineEnvs) implements the same Wordle env in several RL frameworks. This demo takes four of them, OpenEnv (Meta), ORS, NeMo Gym (NVIDIA) and Verifiers (in-process), and runs each framework server in its own [islo.dev](https://islo.dev) sandbox instead of the HuggingFace Spaces that upstream deploys to. It was a single run on 2026-05-11: OpenEnv and ORS ran, NeMo Gym did not finish provisioning, and Verifiers has no server. The sandboxes have since been shut down.
 
-You want per-rollout sandbox isolation when:
+Disclosure: the author works on islo.dev at Incredibuild.
+
+## Why one sandbox per server
+
+Per-rollout sandbox isolation helps when:
 - you're running **K parallel rollouts** during a training step and they each mutate state (tools, files, scratch dirs);
-- you need to **`ssh` into a stuck env** for debugging;
-- you want a **cold start per trial** so a misbehaving env in trial T doesn't poison trial T+1.
+- you need to **shell into a stuck env** for debugging;
+- you want a **fresh start per trial** so a misbehaving env in trial T doesn't affect trial T+1.
 
-HF Spaces is one shared service per app — perfect for a static demo, less so for RL training-time env hosting. islo `use <name> --source github://...` spins a cold worker in seconds; `islo share <name> <port>` gives you a public URL that the rollout client (or the entire training process) can hit.
+Here each framework server runs in its own islo.dev sandbox: `islo use <name> --source github://...` creates the sandbox and starts the server, and `islo share <name> <port>` gives it a temporary public URL that a rollout client can call. This demo only sets up that deployment; it does not run parallel rollouts or training.
 
-## Tier 2: Jupyter env — "islo replaces E2B"
+## Tier 2 (not built): porting the Jupyter env from E2B to Islo
 
-Adithya's Jupyter agent env executes real Python code inside a sandbox. In his repo that sandbox is **E2B** — the four framework ports each `from e2b_code_interpreter import Sandbox` and use it through a thin `e2b_sandbox.py` wrapper.
+Adithya's Jupyter agent env executes real Python code inside a sandbox. In his repo (as of upstream commit `41c0463`) that sandbox is **E2B**: the four framework ports each `from e2b_code_interpreter import Sandbox` and use it through a thin `e2b_sandbox.py` wrapper.
 
-Swapping E2B for islo there is not mechanical. You'd:
+Swapping E2B for Islo there is not mechanical. You'd:
 1. Write an `IsloSandbox` class with the same surface as `E2BSandbox`: `run_code(str)`, `kill()`, persistent kernel state across calls, image capture for matplotlib (Adithya's `_SETUP_CODE` patches `plt.show()` to route through IPython).
 2. The IsloSandbox would shell out to `islo use <ephemeral-name> --source ... -- bash -c '<python -c …>'` per call, OR keep a single sandbox up per session and execute over a small RPC. Latter is closer to E2B's semantics.
 3. Update each framework's `envs/jupyter_env/<framework>/e2b_sandbox.py` (or write a parallel `islo_sandbox.py` and a flag).
 4. Verify Jupyter notebook semantics: variables persist between calls in the same sandbox.
 
-That's the real "islo replaces E2B" demo. The Wordle rosetta in this repo proves the deployment shape works; Tier 2 makes the value clear.
+Tier 2 would port the Jupyter env from E2B to Islo; it is not built. The Wordle demo in this repo only covers the deployment shape.
 
 ## Honest framing
 
-- The four framework cards on the page link to the **same Wordle game logic**, exposed through each framework's idioms. The judging step in Adithya's repo is "did the LLM solve the puzzle." We don't run rollouts on every page load — that needs API keys, money, and time. Cards show **canned transcripts** from a single successful rollout per framework.
-- One of the sandboxes (NeMo Gym) hit a transient `islo` exec-stream error during initial provisioning. It will show `warming` on the page until a retry succeeds. The other three (OpenEnv, ORS, Verifiers in-process) are live.
+- The four framework cards on the page link to the **same Wordle game logic**, exposed through each framework's idioms. The judging step in Adithya's repo is "did the LLM solve the puzzle." No LLM rollouts were run for this demo. Each card shows the same **scripted example transcript** (not an LLM rollout), written by `bin/rollout.py`.
+- One of the sandboxes (NeMo Gym) hit a transient `islo` exec-stream error during initial provisioning and never reached `running`. OpenEnv and ORS ran; their 24-hour share links have expired.
 - Verifiers doesn't have a server in this env — it's an in-process Python module. No share URL, no sandbox. The card shows code + transcript only.
 
 ## Credits
 
-- Envs + framework adapters: [@adithya-s-k/RL_Envs_101](https://github.com/adithya-s-k/RL_Envs_101)
+- Envs + framework adapters: [@adithya-s-k, RL_Envs_101 / FineEnvs](https://github.com/adithya-s-k/FineEnvs)
 - Sandbox infra: [islo.dev](https://islo.dev)
-- Sibling: [unity-loop](https://github.com/zozo123/unity-loop), [pokeloop](https://github.com/zozo123/pokeloop), [meta-harness-on-islo](https://github.com/zozo123/meta-harness-on-islo)
+- Related demos: [unity-loop](https://github.com/zozo123/unity-loop), [pokeloop](https://github.com/zozo123/pokeloop), [meta-harness-on-islo](https://github.com/zozo123/meta-harness-on-islo)

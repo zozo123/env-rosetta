@@ -1,6 +1,8 @@
-"""Offline deterministic walkthrough — fills cards/*.json with canned data, no network."""
+"""Offline walkthrough — fills cards/*.json with placeholder data and the scripted example transcript, no network."""
 import json
 from pathlib import Path
+
+from rollout import run_scripted
 
 ROOT = Path(__file__).resolve().parent.parent
 CARDS = ROOT / "cards"
@@ -12,17 +14,6 @@ FRAMEWORKS = {
     "verifiers": {"name": "Verifiers", "vendor": "@willccbb",            "color": "#8338ec", "sandbox": None},
 }
 
-
-def canned_rollout(fw: str) -> dict:
-    lines = [
-        f"$ rollout against {fw}",
-        ">  guess('crane')  → 🟨⬛⬛🟨⬛  (5 guesses remaining)",
-        ">  guess('share')  → ⬛🟨🟩⬛🟩  (4 guesses remaining)",
-        ">  guess('alert')  → 🟨⬛🟨⬛🟨  (3 guesses remaining)",
-        ">  guess('paint')  → 🟩🟩🟩🟩🟩  (WIN — 'paint')",
-    ]
-    return {"transcript": "\n".join(lines), "won": True, "guesses_used": 4}
-
 CARDS.mkdir(exist_ok=True)
 
 print("env-rosetta · demo mode (no network)")
@@ -33,7 +24,7 @@ for fw, meta in FRAMEWORKS.items():
         **meta,
         "share_url": None if meta["sandbox"] is None else f"https://example-{fw}.share.islo.dev",
         "status": "demo",
-        "rollout": canned_rollout(fw),
+        "rollout": run_scripted(fw),
     }
     (CARDS / f"{fw}.json").write_text(json.dumps(card, indent=2))
     print(f"  ✓ {meta['name']:<14} → cards/{fw}.json")

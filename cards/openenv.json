@@ -9,9 +9,11 @@
   "color": "#3a86ff",
   "status": "running",
   "code_excerpt_path": "envs/wordle_env/openenv/server/app.py",
+  "code_excerpt_url": "https://github.com/adithya-s-k/FineEnvs/blob/41c04630fbb3aba001c9a6ab656893e6ac2a0961/envs/wordle_env/openenv/server/app.py",
   "code_excerpt": "\"\"\"\nFastAPI application for the Wordle Environment.\n\nUsage:\n    E2B_API_KEY=... uv run uvicorn server.app:app --reload\n    docker run -p 8000:8000 wordle-openenv\n\"\"\"\n\nimport os\n\nfrom openenv.core.env_server.http_server import create_app\nfrom openenv.core.env_server.mcp_types import CallToolAction, CallToolObservation\n\nfrom .wordle_environment import WordleEnvironment\n\nos.environ[\"ENABLE_WEB_INTERFACE\"] = \"false\"\n\napp = create_app(\n    WordleEnvironment,\n    CallToolAction,\n    CallToolObservation,\n    env_name=\"wordle_env\",\n    max_concurrent_envs=int(os.getenv(\"MAX_CONCURRENT_ENVS\", \"4\")),\n)\n\n\ndef main(host: str = \"0.0.0.0\", port: int = 8000) -> None:\n    import uvicorn\n    uvicorn.run(app, host=host, port=port)\n\n\nif __name__ == \"__main__\":\n    main()\n",
   "rollout": {
-    "transcript": "$ rollout against openenv\n>  guess('crane')  → 🟨⬛⬛🟨⬛  (5 guesses remaining)\n>  guess('share')  → ⬛🟨🟩⬛🟩  (4 guesses remaining)\n>  guess('alert')  → 🟨⬛🟨⬛🟨  (3 guesses remaining)\n>  guess('paint')  → 🟩🟩🟩🟩🟩  (WIN — 'paint')",
+    "transcript": "# scripted example, not a real rollout (openenv)\n>  guess('crane')  \u2192 \u2b1b\u2b1b\ud83d\udfe8\ud83d\udfe9\u2b1b  (5 guesses remaining)\n>  guess('share')  \u2192 \u2b1b\u2b1b\ud83d\udfe8\u2b1b\u2b1b  (4 guesses remaining)\n>  guess('alert')  \u2192 \ud83d\udfe8\u2b1b\u2b1b\u2b1b\ud83d\udfe9  (3 guesses remaining)\n>  guess('paint')  \u2192 \ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9\ud83d\udfe9  (WIN \u2014 'paint')",
+    "scripted": true,
     "won": true,
     "guesses_used": 4
   }

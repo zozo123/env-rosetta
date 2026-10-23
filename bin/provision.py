@@ -1,4 +1,4 @@
-"""Provision 4 islo sandboxes, one per framework. Writes share URLs to cards/<fw>.json."""
+"""Provision one islo sandbox per server-based framework (3; Verifiers runs in-process). Writes share URLs to cards/<fw>.json."""
 from __future__ import annotations
 import json, os, subprocess, sys, tempfile
 from pathlib import Path
